@@ -1,0 +1,32 @@
+{
+    "name": "threshold/php-excel",
+    "description": "PHP Library to only write and only XLSX files, in a fast and scalable way, box/spout package served as a basis.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Zalan Sallai"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.4.0",
+        "ext-dom": "*",
+        "ext-iconv": "*",
+        "ext-libxml": "*",
+        "ext-mbstring": "*",
+        "ext-simplexml": "*",
+        "ext-xmlreader": "*",
+        "ext-zip": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Threshold\\PhpExcel\\": "src/PhpExcel"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "7.4"
+        }
+    }
+}
