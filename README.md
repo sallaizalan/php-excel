@@ -1,4 +1,4 @@
-# php-excel
+# threshold/php-excel
 PHP Library to only write and only XLSX files, in a fast and scalable way, box/spout package served as a basis.
 
 ## Installation
