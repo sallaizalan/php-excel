@@ -134,6 +134,10 @@ class WorksheetHelper
             $endColumnIndex = CellHelper::getColumnIndexFromString($endColumn);
             ++$endColumnIndex;
             
+            if ($startColumn === $endColumn && $startRow < $endRow) { // vertical merging does not count in the cell width calculation
+                continue;
+            }
+            
             // Current data
             $currentColumnIndex = $startColumnIndex;
             $currentRow = $startRow;

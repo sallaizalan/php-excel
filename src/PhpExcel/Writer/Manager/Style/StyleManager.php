@@ -392,13 +392,20 @@ class StyleManager
                     && (((!isset($xmlXfElement["applyBorder"]) || (string)$xmlXfElement["applyBorder"] === "0") && !$style->shouldApplyBorder())
                         || ((string)$xmlXfElement["applyBorder"] === "1" && $style->shouldApplyBorder()))
                     && ((!isset($xmlXfElement["applyAlignment"]) && !isset($xmlXfElement->alignment) && !$style->shouldApplyCellAlignment() && !$style->shouldWrapText())
+                        || (isset($xmlXfElement["applyAlignment"]) && (string)$xmlXfElement["applyAlignment"] === "1" && $style->shouldApplyCellAlignment() && !$style->shouldWrapText()
+                            && (($style->getCellAlignment() !== null && isset($xmlXfElement->alignment["horizontal"]) && (string)$xmlXfElement->alignment["horizontal"] === $style->getCellAlignment() && isset($xmlXfElement->alignment["vertical"]) && (string)$xmlXfElement->alignment["vertical"] === $style->getCellAlignment())
+                                || ($style->getCellAlignment() === null && (!isset($xmlXfElement->alignment["vertical"]) || !isset($xmlXfElement->alignment["horizontal"])) && (
+                                        ($style->getCellVerticalAlignment() !== null && isset($xmlXfElement->alignment["vertical"]) && (string)$xmlXfElement->alignment["vertical"] === $style->getCellVerticalAlignment())
+                                        || ($style->getCellHorizontalAlignment() !== null && isset($xmlXfElement->alignment["horizontal"]) && (string)$xmlXfElement->alignment["horizontal"] === $style->getCellHorizontalAlignment()))))
+                        )
+                        || (isset($xmlXfElement["applyAlignment"]) && (string)$xmlXfElement["applyAlignment"] === "1" && $style->shouldWrapText() && !$style->shouldApplyCellAlignment()
+                            && isset($xmlXfElement->alignment["wrapText"]) && (string)$xmlXfElement->alignment["wrapText"] === "1")
                         || (isset($xmlXfElement["applyAlignment"]) && (string)$xmlXfElement["applyAlignment"] === "1" && $style->shouldApplyCellAlignment()
                             && (($style->getCellAlignment() !== null && isset($xmlXfElement->alignment["horizontal"]) && (string)$xmlXfElement->alignment["horizontal"] === $style->getCellAlignment() && isset($xmlXfElement->alignment["vertical"]) && (string)$xmlXfElement->alignment["vertical"] === $style->getCellAlignment())
-                                || ($style->getCellAlignment() === null && (
-                                    ($style->getCellVerticalAlignment() !== null && isset($xmlXfElement->alignment["vertical"]) && (string)$xmlXfElement->alignment["vertical"] === $style->getCellVerticalAlignment())
-                                    || ($style->getCellHorizontalAlignment() !== null && isset($xmlXfElement->alignment["horizontal"]) && (string)$xmlXfElement->alignment["horizontal"] === $style->getCellHorizontalAlignment()))))
-                        )
-                        || (isset($xmlXfElement["applyAlignment"]) && (string)$xmlXfElement["applyAlignment"] === "1" && $style->shouldWrapText() && isset($xmlXfElement->alignment["wrapText"]) && (string)$xmlXfElement->alignment["wrapText"] === "1"))
+                                || ($style->getCellAlignment() === null && (!isset($xmlXfElement->alignment["vertical"]) || !isset($xmlXfElement->alignment["horizontal"])) && (
+                                        ($style->getCellVerticalAlignment() !== null && isset($xmlXfElement->alignment["vertical"]) && (string)$xmlXfElement->alignment["vertical"] === $style->getCellVerticalAlignment())
+                                        || ($style->getCellHorizontalAlignment() !== null && isset($xmlXfElement->alignment["horizontal"]) && (string)$xmlXfElement->alignment["horizontal"] === $style->getCellHorizontalAlignment()))))
+                            && isset($xmlXfElement["applyAlignment"]) && (string)$xmlXfElement["applyAlignment"] === "1" && $style->shouldWrapText() && isset($xmlXfElement->alignment["wrapText"]) && (string)$xmlXfElement->alignment["wrapText"] === "1"))
                 ) {
                     $alreadyAddedXf = true;
                     break;
