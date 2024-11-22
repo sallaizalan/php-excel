@@ -102,7 +102,7 @@ class WorksheetManager
                 }
             }
             
-            if (!$rowXML) {
+            if ($rowXML === null) {
                 $rowXML = $worksheet->getXML()->sheetData->addChild("row");
             }
         }

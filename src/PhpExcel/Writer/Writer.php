@@ -414,4 +414,9 @@ class Writer
         
         return $this;
     }
+    
+    public function getWorkbookManager(): WorkbookManager
+    {
+        return $this->workbookManager;
+    }
 }
