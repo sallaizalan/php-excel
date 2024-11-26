@@ -142,3 +142,31 @@ if (($writerResponse = $writer->close()) === true) {
 }
 exit;
 ```
+
+If you have generated multiple worksheets, you can now sort them alphabetically or in reverse order.
+
+```php
+$writer->sortSheetsByName(); // abc sorting
+$writer->sortSheetsByName(true); // abc reverse sorting
+```
+
+If you want to generate multiple worksheets, instead of using an if to determine whether you are in the first loop and using the `$writer->getCurrentSheet()` function to get the first worksheet, you can pass a second boolean parameter (the default is false) to the `$writer->openToFile()` or `$writer->openToBrowser()` functions, which will prevent the first worksheet from being created automatically. This way, you only need to use the `$writer->addNewSheetAndMakeItCurrent()` function to add a worksheet in each loop.
+
+```php
+$writer->openToFile("example.xlsx", true);
+$writer->openToBrowser("example.xlsx", true);
+$sheet = $writer->addNewSheetAndMakeItCurrent();
+```
+
+If you generate Excel recursively and the submitted data determines the worksheet names each time, and it may happen that a worksheet with the same name needs to be created, you can use the `$writer->getSheetByName()` function, which searches the worksheets by name. If it has already been created, it returns that worksheet and sets it as current, if it does not, it creates a new one with the specified name, sets it as current and returns with it. And at the end, you can sort them in order.
+
+```php
+$requestWorksheetNames = ["a", "b", "c"]; // first request
+$requestWorksheetNames = ["d", "b", "f"]; // second request
+
+// loop over the names each request
+foreach ($requestWorksheetNames as $worksheetName) {
+    $sheet = $writer->getSheetByName($worksheetName); // In the first request, none of them exist, so all of them are created, but in the second request, the "b" worksheet already exists, so no new one is created, but the existing one can be written further.
+}
+$writer->sortSheetsByName(); // And at the end, you can sort them in order.
+```

@@ -375,15 +375,15 @@ EOD;
             $sheets = $workbookXmlFileContents->addChild("sheets");
         }
         
+        unset($workbookXmlFileContents->sheets->sheet); // unset all sheet, because of the sorting
+        
         foreach ($worksheets as $worksheet) {
-            if (empty($workbookXmlFileContents->xpath('xmlns:sheets/xmlns:sheet[@sheetId="' . $worksheet->getId() . '"][@r:id="rIdSheet' . $worksheet->getId() . '"]'))) {
-                $sheet = $sheets->addChild("sheet");
-                $sheet->addAttribute("name", $this->escaper->escape($worksheet->getExternalSheet()->getName()));
-                $sheet->addAttribute("sheetId", $worksheet->getId());
-                $sheet->addAttribute("r:id", ("rIdSheet" . $worksheet->getId()), "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
-                $sheet->addAttribute("state", ($worksheet->getExternalSheet()->isVisible() ? 'visible' : 'hidden'));
-                unset($sheet);
-            }
+            $sheet = $sheets->addChild("sheet");
+            $sheet->addAttribute("name", $this->escaper->escape($worksheet->getExternalSheet()->getName()));
+            $sheet->addAttribute("sheetId", $worksheet->getId());
+            $sheet->addAttribute("r:id", ("rIdSheet" . $worksheet->getId()), "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
+            $sheet->addAttribute("state", ($worksheet->getExternalSheet()->isVisible() ? 'visible' : 'hidden'));
+            unset($sheet);
         }
         
         $this->throwIfOperationNotInBaseFolder($this->rootFolder);

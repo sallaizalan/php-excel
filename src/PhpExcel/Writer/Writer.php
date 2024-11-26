@@ -50,7 +50,20 @@ class Writer
     }
     
     /**
-     * @throws InvalidSheetNameException|InvalidStyleException|InvalidWidthException|IOException
+     * @throws InvalidArgumentException|InvalidWidthException|InvalidSheetNameException|InvalidStyleException|IOException
+     */
+    protected function openWriterChooser(bool $withoutDefaultWorksheet = false)
+    {
+        if ($withoutDefaultWorksheet) {
+            $this->openWriterWithoutDefaultWorksheet();
+        }
+        else {
+            $this->openWriter();
+        }
+    }
+    
+    /**
+     * @throws InvalidArgumentException|InvalidSheetNameException|InvalidStyleException|InvalidWidthException|IOException
      */
     protected function openWriter(): void
     {
@@ -73,6 +86,30 @@ class Writer
             
             $worksheet = $this->workbookManager->addNewSheetAndMakeItCurrent();
             $worksheet->setFontStyle($this->optionsManager->getFontStyle());
+        }
+    }
+    
+    /**
+     * @throws InvalidArgumentException|InvalidStyleException|InvalidWidthException|IOException
+     */
+    protected function openWriterWithoutDefaultWorksheet(): void
+    {
+        if (!$this->workbookManager) {
+            $fileSystemHelper = new FileSystemHelper($this->optionsManager, new ZipHelper(), new XLSX());
+            $fileSystemHelper->createBaseFilesAndFolders();
+            
+            $xlFolder     = $fileSystemHelper->getXlFolder();
+            $styleMerger  = new StyleMerger();
+            $styleManager = new StyleManager(new StyleRegistry($this->optionsManager->getOption(Options::DEFAULT_ROW_STYLE), ($xlFolder . "/" . $fileSystemHelper::STYLES_XML_FILE_NAME)));
+            
+            $this->workbookManager = new WorkbookManager(
+                new Workbook(),
+                $this->optionsManager,
+                new WorksheetManager($this->optionsManager, new RowManager(), $styleManager, $styleMerger, new SharedStringsManager($xlFolder, new XLSX()), new XLSX(), new StringHelper()),
+                $styleManager,
+                $styleMerger,
+                $fileSystemHelper
+            );
         }
     }
     
@@ -116,6 +153,22 @@ class Writer
     }
     
     /**
+     * @throws InvalidSheetNameException|WriterNotOpenedException|SheetNotFoundException
+     */
+    public function getSheetByName(string $sheetName): Sheet
+    {
+        $this->throwIfWorkbookIsNotAvailable();
+        
+        foreach ($this->workbookManager->getWorksheets() as $worksheet) {
+            if ($worksheet->getExternalSheet()->getName() === $sheetName) {
+                $this->workbookManager->setCurrentSheet($worksheet->getExternalSheet());
+                return $worksheet->getExternalSheet();
+            }
+        }
+        return $this->addNewSheetAndMakeItCurrent()->setName($sheetName);
+    }
+    
+    /**
      * @throws SheetNotFoundException|WriterNotOpenedException
      */
     public function setCurrentSheet(Sheet $sheet): void
@@ -155,9 +208,9 @@ class Writer
     }
     
     /**
-     * @throws InvalidSheetNameException|InvalidStyleException|InvalidWidthException|IOException
+     * @throws InvalidArgumentException|InvalidSheetNameException|InvalidStyleException|InvalidWidthException|IOException
      */
-    public function openToFile(string $outputFilePath): self
+    public function openToFile(string $outputFilePath, bool $withoutDefaultWorksheet = false): self
     {
         $this->outputFilePath = $outputFilePath;
         $loopCounter          = $this->optionsManager->getOption(Options::LOOP_COUNTER);
@@ -168,16 +221,16 @@ class Writer
             $this->throwIfFilePointerIsNotAvailable();
         }
         
-        $this->openWriter();
+        $this->openWriterChooser($withoutDefaultWorksheet);
         $this->writerOpened = true;
         
         return $this;
     }
     
     /**
-     * @throws InvalidSheetNameException|InvalidStyleException|InvalidWidthException|IOException
+     * @throws InvalidArgumentException|InvalidSheetNameException|InvalidStyleException|InvalidWidthException|IOException
      */
-    public function openToBrowser(string $outputFileName): self
+    public function openToBrowser(string $outputFileName, bool $withoutDefaultWorksheet = false): self
     {
         $this->outputFilePath = basename($outputFileName);
         $this->filePointer    = fopen('php://output', 'w');
@@ -220,7 +273,7 @@ class Writer
         header('Cache-Control: max-age=0');
         header('Pragma: public');
         
-        $this->openWriter();
+        $this->openWriterChooser($withoutDefaultWorksheet);
         $this->writerOpened = true;
         
         return $this;
@@ -415,8 +468,14 @@ class Writer
         return $this;
     }
     
-    public function getWorkbookManager(): WorkbookManager
+    public function getLastWrittenRowIndex(): int
     {
-        return $this->workbookManager;
+        return $this->workbookManager->getCurrentWorksheet()->getLastWrittenRowIndex();
+    }
+    
+    public function sortSheetsByName(bool $reverse = false): self
+    {
+        $this->workbookManager->sortWorksheetsBySheetName($reverse);
+        return $this;
     }
 }
