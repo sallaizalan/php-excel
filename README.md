@@ -170,3 +170,13 @@ foreach ($requestWorksheetNames as $worksheetName) {
 }
 $writer->sortSheetsByName(); // And at the end, you can sort them in order.
 ```
+
+If you want to add a header to your worksheets, which you only need to add once to the worksheet, you can use the `$sheet->isNew()` function as a check, which will only return true if this is the first time you've added the worksheet. If `$writer->getSheetByName()` returns it because you created it before, it will return false.
+
+```php
+$sheet = $writer->getSheetByName("example");
+
+if ($sheet->isNew()) {
+    // add header
+}
+```

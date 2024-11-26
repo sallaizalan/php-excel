@@ -84,7 +84,12 @@ class WorkbookManager
     
     public function getWorksheets(): array
     {
-        $worksheets          = $this->workbook->getWorksheets();
+        return $this->workbook->getWorksheets();
+    }
+    
+    public function reloadWorksheets(): void
+    {
+        $worksheets          = [];
         $tempFolderName      = $this->optionsManager->getOption(Options::TEMP_FOLDER_NAME) ?? uniqid('xlsx', true);
         $workbookXmlFilePath = realpath($this->optionsManager->getOption(Options::TEMP_FOLDER)) . "/" . $tempFolderName . "/" . FileSystemHelper::XL_FOLDER_NAME . "/" . FileSystemHelper::WORKBOOK_XML_FILE_NAME;
         
@@ -95,14 +100,14 @@ class WorkbookManager
                 foreach ($workbookXml->sheets->sheet as $workbookSheet) {
                     if (isset($workbookSheet["sheetId"]) && !$this->existSheetId($worksheets, $workbookSheet["sheetId"] - 1)) {
                         $sheetIndex        = (int)$workbookSheet["sheetId"] - 1;
-                        $sheet             = new Sheet($sheetIndex, $this->workbook->getInternalId(), new SheetManager(new StringHelper()));
+                        $sheet             = (new Sheet($sheetIndex, $this->workbook->getInternalId(), new SheetManager(new StringHelper())))->setNew(false);
                         $worksheetFilePath = $this->getWorksheetFilePath($sheet);
                         
                         if (isset($workbookSheet["name"])) {
                             $sheet->setName((string)$workbookSheet["name"]);
                         }
                         
-                        $worksheet         = new Worksheet($worksheetFilePath, $sheet);
+                        $worksheet = new Worksheet($worksheetFilePath, $sheet);
                         $worksheet->setFontStyle($this->optionsManager->getFontStyle());
                         
                         $this->worksheetManager->startSheet($worksheet);
@@ -114,8 +119,6 @@ class WorkbookManager
         }
         
         $this->workbook->setWorksheets($worksheets);
-        
-        return $this->workbook->getWorksheets();
     }
     
     private function existSheetId(array $worksheets, int $sheetIndex): bool
@@ -181,12 +184,12 @@ class WorkbookManager
     {
         $this->worksheetManager->getSharedStringsManager()->close();
         $this->fileSystemHelper
-            ->createContentTypesFile($this->workbook->getWorksheets())
-            ->createWorkbookFile($this->workbook->getWorksheets())
-            ->createWorkbookRelsFile($this->workbook->getWorksheets())
+            ->createContentTypesFile($this->getWorksheets())
+            ->createWorkbookFile($this->getWorksheets())
+            ->createWorkbookRelsFile($this->getWorksheets())
             ->createStylesFile($this->styleManager);
         
-        foreach ($this->workbook->getWorksheets() as $worksheet) {
+        foreach ($this->getWorksheets() as $worksheet) {
             $this->worksheetManager->close($worksheet);
         }
         
@@ -202,12 +205,12 @@ class WorkbookManager
     {
         $this->worksheetManager->getSharedStringsManager()->close();
         $this->fileSystemHelper
-            ->createContentTypesFile($this->workbook->getWorksheets())
-            ->createWorkbookFile($this->workbook->getWorksheets())
-            ->createWorkbookRelsFile($this->workbook->getWorksheets())
+            ->createContentTypesFile($this->getWorksheets())
+            ->createWorkbookFile($this->getWorksheets())
+            ->createWorkbookRelsFile($this->getWorksheets())
             ->createStylesFile($this->styleManager);
         
-        foreach ($this->workbook->getWorksheets() as $worksheet) {
+        foreach ($this->getWorksheets() as $worksheet) {
             $this->worksheetManager->close($worksheet);
         }
     }

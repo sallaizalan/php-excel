@@ -17,6 +17,7 @@ class Sheet
     private array $mergeRanges;
     private array $autoSizeColumns;
     private array $columnsWidth;
+    private bool $new;
     
     /**
      * @throws InvalidSheetNameException
@@ -32,6 +33,7 @@ class Sheet
         $this->mergeRanges     = [];
         $this->autoSizeColumns = [];
         $this->columnsWidth    = [];
+        $this->new             = true;
     }
 
     public function getIndex(): int
@@ -120,6 +122,17 @@ class Sheet
         if (!in_array($column, $this->autoSizeColumns)) {
             $this->columnsWidth[$column] = $width;
         }
+        return $this;
+    }
+    
+    public function isNew(): bool
+    {
+        return $this->new;
+    }
+    
+    public function setNew(bool $new): self
+    {
+        $this->new = $new;
         return $this;
     }
 }

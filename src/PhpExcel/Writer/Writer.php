@@ -84,6 +84,8 @@ class Writer
                 $fileSystemHelper
             );
             
+            $this->workbookManager->reloadWorksheets();
+            
             $worksheet = $this->workbookManager->addNewSheetAndMakeItCurrent();
             $worksheet->setFontStyle($this->optionsManager->getFontStyle());
         }
@@ -110,6 +112,8 @@ class Writer
                 $styleMerger,
                 $fileSystemHelper
             );
+            
+            $this->workbookManager->reloadWorksheets();
         }
     }
     
@@ -162,7 +166,7 @@ class Writer
         foreach ($this->workbookManager->getWorksheets() as $worksheet) {
             if ($worksheet->getExternalSheet()->getName() === $sheetName) {
                 $this->workbookManager->setCurrentSheet($worksheet->getExternalSheet());
-                return $worksheet->getExternalSheet();
+                return $worksheet->getExternalSheet()->setNew(false);
             }
         }
         return $this->addNewSheetAndMakeItCurrent()->setName($sheetName);
