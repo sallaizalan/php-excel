@@ -222,8 +222,8 @@ class WorksheetManager
             
             foreach ($mergeRanges as $mergeRange) {
                 $mergeRangePairs    = explode(":", $mergeRange);
-                $mergeRangePairs[0] = preg_replace("/[^a-zA-Z]+/", "", $mergeRangePairs[0]) . ((int)preg_replace("/[^0-9]+/", "", $mergeRangePairs[0]) + $worksheet->getFirstRowIndex());
-                $mergeRangePairs[1] = preg_replace("/[^a-zA-Z]+/", "", $mergeRangePairs[1]) . ((int)preg_replace("/[^0-9]+/", "", $mergeRangePairs[1]) + $worksheet->getFirstRowIndex());
+                $mergeRangePairs[0] = preg_replace("/[^a-zA-Z]+/", "", $mergeRangePairs[0]) . (int)preg_replace("/[^0-9]+/", "", $mergeRangePairs[0]);
+                $mergeRangePairs[1] = preg_replace("/[^a-zA-Z]+/", "", $mergeRangePairs[1]) . (int)preg_replace("/[^0-9]+/", "", $mergeRangePairs[1]);
                 $mergeRange         = implode(":", $mergeRangePairs);
                 
                 $alreadyAddedMergeCell = false;
